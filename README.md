@@ -186,6 +186,7 @@ Variable | Valid | Default | Description
 ---|:---:|:---:|---
 UCOLLAGE_LINES            | Integer | 3 | number of lines when the scripts starts
 UCOLLAGE_COLUMNS          | Integer | 4 | number of columns when the scripts starts
+UCOLLAGE_RESIZE           | {0, 1}  | 0 | if the number of images given is less than the lines and columns can hold, try to resize to minimize the empty space (eg: 1 image opens in monocle)
 UCOLLAGE_TMP_DIR  *       | String  | /tmp/ucollage | temporary directory to store script relevant files
 UCOLLAGE_CACHE_DIR  *     | String  | ~/.local/share/ucollage | cache directory to store script relevant files
 UCOLLAGE_TRASH_DIR  *     | String  | ~/.local/share/Trash/ucollage | cache directory to move "deleted" files

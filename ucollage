@@ -12,6 +12,9 @@ parse_config() {
     [[ -n "$UCOLLAGE_COLUMNS" ]] && ! is_natural "$UCOLLAGE_COLUMNS" \
         && config_error "UCOLLAGE_COLUMNS" "$UCOLLAGE_COLUMNS" "is not a natural number" \
         && unset UCOLLAGE_COLUMNS && errors=1
+    [[ -n "$UCOLLAGE_RESIZE" ]] && [[ ! "$UCOLLAGE_RESIZE" =~ ^(0|1)$ ]] \
+        && config_error "UCOLLAGE_RESIZE" "$UCOLLAGE_RESIZE" " - valid values: 0, 1" \
+        && unset UCOLLAGE_RESIZE && errors=1
     [[ -n "$UCOLLAGE_EXEC_PROMPT" ]] && [[ ! "$UCOLLAGE_EXEC_PROMPT" =~ ^(0|1)$ ]] \
         && config_error "UCOLLAGE_EXEC_PROMPT" "$UCOLLAGE_EXEC_PROMPT" " - valid values: 0, 1" \
         && unset UCOLLAGE_EXEC_PROMPT && errors=1
@@ -56,6 +59,7 @@ parse_config() {
 set_defaults() {
     fit_vertical=${UCOLLAGE_LINES:-3}
     fit_horizontal=${UCOLLAGE_COLUMNS:-4}
+    resize=${UCOLLAGE_RESIZE:-0}
     tmp_dir=${UCOLLAGE_TMP_DIR:-/tmp/ucollage}
     cache_dir=${UCOLLAGE_CACHE_DIR:-~/.local/share/ucollage}
     trash_dir=${UCOLLAGE_TRASH_DIR:-~/.local/share/Trash/ucollage}
@@ -204,6 +208,18 @@ pre_read_images() {
         done
     fi
     argc="${#filelist[@]}"
+    # TODO there is still an issue where it breaks if you do backspace or maybe something else with just 1 image
+    [ $resize -eq 1 ] && [ $(($argc / 2)) -lt $(($fit_vertical * $fit_horizontal)) ] && {
+        col=$fit_horizontal
+        for row in $(seq $fit_vertical -1 1); do
+            [ $(($argc / 2)) -gt $(($row * $col)) ] && ((row++)) && break
+            for col in $(seq $fit_horizontal -1 $row); do
+                [ $(($argc / 2)) -gt $(($row * $col)) ] && ((col++)) && break
+            done
+        done
+        fit_vertical=$row
+        fit_horizontal=$col
+    }
     image_names=()
     images=()
     rm -f "${tmp_dir}/image_names.txt*"
